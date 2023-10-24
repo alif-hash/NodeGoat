@@ -94,7 +94,7 @@ pipeline {
             }
             steps {
                 catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
-                    sh 'sonar-scanner -Dsonar.projectKey=NodeGoat -Dsonar.qualitygate.wait=true -Dsonar.sources=. -Dsonar.host.url=http://localhost:9000 -Dsonar.token=sqp_2f839e4c5ea3eb6387d2c29ae5776aa7dd0ec327' 
+                    sh 'sonar-scanner -Dsonar.projectKey=NodeGoat -Dsonar.qualitygate.wait=true -Dsonar.sources=. -Dsonar.host.url=http://192.168.240.1:9000 -Dsonar.token=sqp_2f839e4c5ea3eb6387d2c29ae5776aa7dd0ec327' 
                 }
             }
         }
@@ -107,8 +107,8 @@ pipeline {
             }
             steps {
                 sh 'echo $DOCKERHUB_CREDENTIALS_PSW | docker login -u $DOCKERHUB_CREDENTIALS_USR --password-stdin'
-                sh 'docker build -t xenjutsu/nodegoat:0.1 .'
-                sh 'docker push xenjutsu/nodegoat:0.1'
+                sh 'docker build -t alifadi/nodegoat:0.1 .'
+                sh 'docker push alifadi/nodegoat:0.1'
             }
         }
         stage('Deploy Docker Image') {
@@ -120,10 +120,10 @@ pipeline {
             }
             steps {
                 withCredentials([sshUserPrivateKey(credentialsId: "DeploymentSSHKey", keyFileVariable: 'keyfile')]) {
-                    sh 'ssh -i ${keyfile} -o StrictHostKeyChecking=no jenkins@192.168.0.102 "echo $DOCKERHUB_CREDENTIALS_PSW | docker login -u $DOCKERHUB_CREDENTIALS_USR --password-stdin"'
-                    sh 'ssh -i ${keyfile} -o StrictHostKeyChecking=no jenkins@192.168.0.102 docker pull xenjutsu/nodegoat:0.1'
-                    sh 'ssh -i ${keyfile} -o StrictHostKeyChecking=no jenkins@192.168.0.102 docker rm --force nodegoat'
-                    sh 'ssh -i ${keyfile} -o StrictHostKeyChecking=no jenkins@192.168.0.102 docker run -it --detach -p 4000:4000 --name nodegoat --network host xenjutsu/nodegoat:0.1'
+                    sh 'ssh -i ${keyfile} -o StrictHostKeyChecking=no jenkins@192.168.240.254 "echo $DOCKERHUB_CREDENTIALS_PSW | docker login -u $DOCKERHUB_CREDENTIALS_USR --password-stdin"'
+                    sh 'ssh -i ${keyfile} -o StrictHostKeyChecking=no jenkins@192.168.240.254 docker pull alifadi/nodegoat:0.1'
+                    sh 'ssh -i ${keyfile} -o StrictHostKeyChecking=no jenkins@192.168.240.254 docker rm --force nodegoat'
+                    sh 'ssh -i ${keyfile} -o StrictHostKeyChecking=no jenkins@192.168.240.254 docker run -it --detach -p 4000:4000 --name nodegoat --network host alifadi/nodegoat:0.1'
                 }
             }
         }
