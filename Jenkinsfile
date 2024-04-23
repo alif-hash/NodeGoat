@@ -136,7 +136,7 @@ pipeline {
            }
            steps {
                catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
-                   sh 'nuclei -u http://localhost:4000 -j > nuclei-report.json'
+                   sh 'nuclei -u http://192.168.240.254:4000 -j > nuclei-report.json'
                    sh 'cat nuclei-report.json'
                }
                archiveArtifacts artifacts: 'nuclei-report.json'
