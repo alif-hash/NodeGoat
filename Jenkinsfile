@@ -40,36 +40,36 @@ pipeline {
                 sh 'npm run test'
             }
         }
-        // stage('SCA Snyk Test') {
-        //     agent {
-        //       docker {
-        //           image 'snyk/snyk:node'
-        //           args '-u root --network host --env SNYK_TOKEN=$SNYK_CREDENTIALS_PSW --entrypoint='
-        //       }
-        //     }
-        //     steps {
-        //         catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
-        //             sh 'snyk test > snyk-scan-report.txt'
-        //         }
-        //         sh 'cat snyk-scan-report.txt'
-        //         archiveArtifacts artifacts: 'snyk-scan-report.txt'
-        //     }
-        // }
-        stage('SCA Retire Js') {
+        stage('SCA Trivy Scan Dockerfile Misconfiguration') {
             agent {
               docker {
-                  image 'node:lts-buster-slim'
+                  image 'aquasec/trivy:latest'
+                  args '-u root --network host --entrypoint='
               }
             }
             steps {
-                sh 'npm install retire'
                 catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
-                    sh './node_modules/retire/lib/cli.js --outputpath retire-scan-report.txt'
+                    sh 'trivy config Dockerfile --exit-code=1 > trivy-scan-dockerfile-report.txt'
                 }
-                sh 'cat retire-scan-report.txt'
-                archiveArtifacts artifacts: 'retire-scan-report.txt'
+                sh 'cat trivy-scan-dockerfile-report.txt'
+                archiveArtifacts artifacts: 'trivy-scan-dockerfile-report.txt'
             }
         }
+        // stage('SCA Retire Js') {
+        //     agent {
+        //       docker {
+        //           image 'node:lts-buster-slim'
+        //       }
+        //     }
+        //     steps {
+        //         sh 'npm install retire'
+        //         catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
+        //             sh './node_modules/retire/lib/cli.js --outputpath retire-scan-report.txt'
+        //         }
+        //         sh 'cat retire-scan-report.txt'
+        //         archiveArtifacts artifacts: 'retire-scan-report.txt'
+        //     }
+        // }
         // stage('SAST Snyk') {
         //     agent {
         //       docker {
