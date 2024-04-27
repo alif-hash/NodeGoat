@@ -13,9 +13,9 @@ pipeline {
                 }
             }
             steps {
-                catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
+                // catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
                     sh 'trufflehog filesystem . --exclude-paths trufflehog-excluded-paths.txt --fail --json > trufflehog-scan-result.json'
-                }
+                // }
                 sh 'cat trufflehog-scan-result.json'
                 archiveArtifacts artifacts: 'trufflehog-scan-result.json'
             }
@@ -55,36 +55,6 @@ pipeline {
                 archiveArtifacts artifacts: 'trivy-scan-dockerfile-report.txt'
             }
         }
-        // stage('SCA Retire Js') {
-        //     agent {
-        //       docker {
-        //           image 'node:lts-buster-slim'
-        //       }
-        //     }
-        //     steps {
-        //         sh 'npm install retire'
-        //         catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
-        //             sh './node_modules/retire/lib/cli.js --outputpath retire-scan-report.txt'
-        //         }
-        //         sh 'cat retire-scan-report.txt'
-        //         archiveArtifacts artifacts: 'retire-scan-report.txt'
-        //     }
-        // }
-        // stage('SAST Snyk') {
-        //     agent {
-        //       docker {
-        //           image 'snyk/snyk:node'
-        //           args '-u root --network host --env SNYK_TOKEN=$SNYK_CREDENTIALS_PSW --entrypoint='
-        //       }
-        //     }
-        //     steps {
-        //         catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
-        //             sh 'snyk code test > snyk-sast-report.txt'
-        //         }
-        //         sh 'cat snyk-scan-report.txt'
-        //         archiveArtifacts artifacts: 'snyk-sast-report.txt'
-        //     }
-        // }
         stage('SAST SonarQube') {
             agent {
               docker {
