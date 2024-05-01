@@ -13,24 +13,15 @@ pipeline {
                 }
             }
             steps {
+                timeout(time: 15, unit: "MINUTES"){
+                  input message: 'Approve ?', ok: 'Yes'
+
+                }
                 catchError(buildResult: 'SUCCESS', stageResult: 'SUCCESS') {
                     sh 'trufflehog filesystem . --exclude-paths trufflehog-excluded-paths.txt --fail --json > trufflehog-scan-result.json'
                 }
                 sh 'cat trufflehog-scan-result.json'
                 archiveArtifacts artifacts: 'trufflehog-scan-result.json'
-            }
-            approval {
-              // Set approvers
-              users 'alif'
-
-              // Set timeout (optional)
-              timeoutMinutes 60
-
-              // Add message (optional)
-              message 'Please review the TruffleHog scan results and approve if no sensitive data was found.'
-
-              // Send email notification
-              notifyApprovedUsersByEmail()
             }
         }
         stage('Build') {
