@@ -13,10 +13,6 @@ pipeline {
                 }
             }
             steps {
-                timeout(time: 15, unit: "MINUTES"){
-                  input message: 'Approve ?', ok: 'Yes'
-
-                }
                 catchError(buildResult: 'SUCCESS', stageResult: 'SUCCESS') {
                     sh 'trufflehog filesystem . --exclude-paths trufflehog-excluded-paths.txt --fail --json > trufflehog-scan-result.json'
                 }
@@ -80,6 +76,9 @@ pipeline {
                 }
             }
             steps {
+                timeout(time: 15, unit: "MINUTES"){
+                  input message: 'Waiting Approval Deployment ?', ok: 'Yes'
+                }
                 sh 'echo $DOCKERHUB_CREDENTIALS_PSW | docker login -u $DOCKERHUB_CREDENTIALS_USR --password-stdin'
                 sh 'docker build -t alifadi/nodegoat:0.1 .'
                 sh 'docker push alifadi/nodegoat:0.1'
