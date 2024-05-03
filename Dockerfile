@@ -15,7 +15,9 @@ COPY --chown=node . $WORKDIR
 #RUN chown -R $USER:$USER /home/$USER && chmod -R g-s,o-rx /home/$USER && chmod -R o-wrx $WORKDIR
 # Then all further actions including running the containers should be done under non-root user.
 # adding health check for sca scanning
-HEALTHCHECK --interval=30s --timeout=3s \ CMD curl -f http://localhost/ || exit 1
+HEALTHCHECK --interval=30s --timeout=3s
+CMD curl -f http://192.168.240.254:4000 || exit 1
+
 USER $USER
 EXPOSE 4000
 CMD [ "node", "server.js" ]
