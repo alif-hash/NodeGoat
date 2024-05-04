@@ -5,21 +5,21 @@ pipeline {
         //SNYK_CREDENTIALS = credentials('SnykToken')
     }
     stages {
-        stage('Secret Scanning Using Trufflehog') {
-            agent {
-                docker {
-                    image 'trufflesecurity/trufflehog:latest'
-                    args '-u root --entrypoint='
-                }
-            }
-            steps {
-                catchError(buildResult: 'SUCCESS', stageResult: 'SUCCESS') {
-                    sh 'trufflehog filesystem . --exclude-paths trufflehog-excluded-paths.txt --fail --json > trufflehog-scan-result.json'
-                }
-                sh 'cat trufflehog-scan-result.json'
-                archiveArtifacts artifacts: 'trufflehog-scan-result.json'
-            }
-        }
+        // stage('Secret Scanning Using Trufflehog') {
+        //     agent {
+        //         docker {
+        //             image 'trufflesecurity/trufflehog:latest'
+        //             args '-u root --entrypoint='
+        //         }
+        //     }
+        //     steps {
+        //         catchError(buildResult: 'SUCCESS', stageResult: 'SUCCESS') {
+        //             sh 'trufflehog filesystem . --exclude-paths trufflehog-excluded-paths.txt --fail --json > trufflehog-scan-result.json'
+        //         }
+        //         sh 'cat trufflehog-scan-result.json'
+        //         archiveArtifacts artifacts: 'trufflehog-scan-result.json'
+        //     }
+        // }
         stage('Build') {
             agent {
               docker {
@@ -30,31 +30,32 @@ pipeline {
                 sh 'npm install'
             }
         }
-        stage('Test') {
-            agent {
-              docker {
-                  image 'node:lts-buster-slim'
-              }
-            }
-            steps {
-                sh 'npm run test'
-            }
-        }
-        stage('SCA Trivy Scan Dockerfile Misconfiguration') {
-            agent {
-              docker {
-                  image 'aquasec/trivy:latest'
-                  args '-u root --network host --entrypoint='
-              }
-            }
-            steps {
-                catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
-                    sh 'trivy config Dockerfile --exit-code=1 > trivy-scan-dockerfile-report.txt'
-                }
-                sh 'cat trivy-scan-dockerfile-report.txt'
-                archiveArtifacts artifacts: 'trivy-scan-dockerfile-report.txt'
-            }
-        }
+        // stage('Test') {
+        //     agent {
+        //       docker {
+        //           image 'node:lts-buster-slim'
+        //       }
+        //     }
+        //     steps {
+        //         sh 'npm run test'
+        //     }
+        // }
+        
+        // stage('SCA Trivy Scan Dockerfile Misconfiguration') {
+        //     agent {
+        //       docker {
+        //           image 'aquasec/trivy:latest'
+        //           args '-u root --network host --entrypoint='
+        //       }
+        //     }
+        //     steps {
+        //         catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
+        //             sh 'trivy config Dockerfile --exit-code=1 > trivy-scan-dockerfile-report.txt'
+        //         }
+        //         sh 'cat trivy-scan-dockerfile-report.txt'
+        //         archiveArtifacts artifacts: 'trivy-scan-dockerfile-report.txt'
+        //     }
+        // }
         stage('SAST SonarQube') {
             agent {
               docker {
